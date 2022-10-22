@@ -7,28 +7,41 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { Film } from "../api/SwapiTypes";
 import { getSwapUrlParamString } from "../api/utils";
-import { useQuery, dehydrate, QueryClient } from "@tanstack/react-query";
+import { useQuery, dehydrate, QueryClient, useQueries } from "react-query";
+import { FILMS, SwapiFetch, useFilm } from "../api/queries";
 
 const getFilms = () =>
   fetch(`https://swapi.dev/api/films/1`).then((res) => res.json());
 
 const Film = ({ dehydratedState }: { dehydratedState: Film }) => {
-  const router = useRouter();
+  const { query } = useRouter();
 
-  const { data } = useQuery<Film>(["films"], getFilms);
-  console.log("DATA>>>>>>", data);
+  const { data: film } = useFilm(query.id as string);
+  console.log("DATA>>>>>> FILM", film);
+
+  const results = useQueries(
+    !film
+      ? []
+      : film?.characters.map((url) => ({
+          queryKey: getSwapUrlParamString(url),
+          queryFn: () => SwapiFetch(`${getSwapUrlParamString(url)}`),
+          staleTime: Infinity,
+          enabled: !!film,
+        }))
+  );
+
   return (
     <div>
       Films
-      <div>{data?.title}</div>
-      <div>{data?.director}</div>
-      {data?.starships.map((starship, i) => (
+      <div>{film?.title}</div>
+      <div>{film?.director}</div>
+      {film?.starships?.map((starship, i) => (
         <div key={i}>
           <Link href={getSwapUrlParamString(starship)}>{starship}</Link>
         </div>
       ))}
       <hr />
-      {data?.planets.map((planet, i) => (
+      {film?.planets?.map((planet, i) => (
         <div key={i}>
           <Link href={getSwapUrlParamString(planet)}>{planet}</Link>
         </div>

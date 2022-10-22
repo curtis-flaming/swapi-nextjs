@@ -1,15 +1,15 @@
 import { GetServerSideProps } from "next";
 import React from "react";
-import { Starship } from "../api/types";
+import { Species } from "../api/SwapiTypes";
 
-const Starship = ({ data }: { data: Starship }) => {
-  console.log("DATA starship", data);
+const Species = ({ data }: { data: Species }) => {
+  console.log("DATA species", data);
   return <div>{data.name}</div>;
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const res = await fetch(
-    `https://swapi.dev/api/starships/${context.query.starshipId}`
+    `https://swapi.dev/api/species/${context.query.speciesId}`
   );
   const data = await res.json();
 
@@ -18,4 +18,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default Starship;
+export default Species;
