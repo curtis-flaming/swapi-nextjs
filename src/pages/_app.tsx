@@ -8,6 +8,7 @@ import {
 } from "react-query";
 import { useState } from "react";
 import Layout from "../components/Layout/Layout";
+import { ReactQueryDevtools } from "react-query/devtools";
 
 function MyApp({
   Component,
@@ -22,6 +23,7 @@ function MyApp({
           <Component {...pageProps} />
         </Layout>
       </Hydrate>
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

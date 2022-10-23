@@ -1,12 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+/* 
 @font-face {
     font-family: "Starjedi";
     src: local('Starjedi'), url(../../public/Starjedi.ttf);
-}
+} */
 
 html {
-    font-family: 'Starjedi';
+    font-family: 'Libre Franklin', sans-serif;
+    font-weight: 700;
 }

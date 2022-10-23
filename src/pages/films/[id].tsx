@@ -5,21 +5,28 @@ import {
 } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Film } from "../api/SwapiTypes";
+import { Film, People, Planet, Result } from "../api/SwapiTypes";
 import { getSwapUrlParamString } from "../api/utils";
-import { useQuery, dehydrate, QueryClient, useQueries } from "react-query";
-import { FILMS, SwapiFetch, useFilm } from "../api/queries";
+import {
+  useQuery,
+  dehydrate,
+  QueryClient,
+  useQueries,
+  useQueryClient,
+} from "react-query";
+import { SwapiFetch, useCharacters, useFilm } from "../api/queries";
 
 const getFilms = () =>
   fetch(`https://swapi.dev/api/films/1`).then((res) => res.json());
 
 const Film = ({ dehydratedState }: { dehydratedState: Film }) => {
   const { query } = useRouter();
+  const queryClient = useQueryClient();
 
   const { data: film } = useFilm(query.id as string);
   console.log("DATA>>>>>> FILM", film);
 
-  const results = useQueries(
+  const characterQueries = useQueries(
     !film
       ? []
       : film?.characters.map((url) => ({
@@ -29,23 +36,41 @@ const Film = ({ dehydratedState }: { dehydratedState: Film }) => {
           enabled: !!film,
         }))
   );
+  const planetsQueries = useQueries(
+    !film
+      ? []
+      : film?.planets.map((url) => ({
+          queryKey: getSwapUrlParamString(url),
+          queryFn: () => SwapiFetch(`${getSwapUrlParamString(url)}`),
+          staleTime: Infinity,
+          enabled: !!film,
+        }))
+  );
+
+  const characterData = characterQueries?.map(({ data }) => data as People);
+  const planetsData = planetsQueries?.map(({ data }) => data as Planet);
+
+  console.log("RESULTS>>>>", planetsData);
 
   return (
     <div>
-      Films
-      <div>{film?.title}</div>
+      <h1 className="text-xl">{film?.title}</h1>
+
       <div>{film?.director}</div>
-      {film?.starships?.map((starship, i) => (
-        <div key={i}>
-          <Link href={getSwapUrlParamString(starship)}>{starship}</Link>
+      <div className="flex">
+        <div>
+          <h2>Characters:</h2>
+          {characterData?.map((character) => (
+            <CharacterCard character={character} />
+          ))}
         </div>
-      ))}
-      <hr />
-      {film?.planets?.map((planet, i) => (
-        <div key={i}>
-          <Link href={getSwapUrlParamString(planet)}>{planet}</Link>
+        <div>
+          <h2>Planets:</h2>
+          {planetsData?.map((planet) => (
+            <PlanetCard planet={planet} />
+          ))}
         </div>
-      ))}
+      </div>
     </div>
   );
 };
@@ -57,10 +82,31 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   const data = await res.json();
   const queryClient = new QueryClient();
-  await queryClient.prefetchQuery(["films"], getFilms);
+  await queryClient.prefetchQuery(["films", context.query.id], getFilms);
   return {
     props: { dehydratedState: dehydrate(queryClient) },
   };
 };
 
 export default Film;
+
+const CharacterCard = ({ character }: { character: People }) => {
+  if (character?.name.includes("nobi")) console.log(character);
+  return (
+    <div>
+      <Link href={getSwapUrlParamString(character?.url)}>
+        <p className="text-sm cursor-pointer font-bold">{character?.name}</p>
+      </Link>
+    </div>
+  );
+};
+
+const PlanetCard = ({ planet }: { planet: Planet }) => {
+  return (
+    <div>
+      <Link href={getSwapUrlParamString(planet?.url)}>
+        <p className="text-sm cursor-pointer">{planet?.name}</p>
+      </Link>
+    </div>
+  );
+};

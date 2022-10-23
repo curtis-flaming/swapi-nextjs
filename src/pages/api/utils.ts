@@ -9,3 +9,5 @@ export const getSwapUrlParamString = (url: string) => {
   // TODO error handle??
   return `/${urlArray[urlArray.length - 2]}/${urlArray[urlArray.length - 1]}`;
 };
+
+export const getSwapiId = (url: string) => url[url.length - 1];
