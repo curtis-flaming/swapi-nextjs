@@ -50,7 +50,7 @@ const Film = ({ dehydratedState }: { dehydratedState: Film }) => {
   const characterData = characterQueries?.map(({ data }) => data as People);
   const planetsData = planetsQueries?.map(({ data }) => data as Planet);
 
-  console.log("RESULTS>>>>", planetsData);
+  console.log("RESULTS>>>>", film);
 
   return (
     <div>
