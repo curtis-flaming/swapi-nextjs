@@ -1,3 +1,5 @@
+# A work-in-progress app I am building to learn how to use React Query inside of Next js.
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
